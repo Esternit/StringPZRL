@@ -28,7 +28,7 @@ TEST_F(Fixture, foo)
     String s2("Billy");
     String s3;
     s3 = s1 + s2;
-    EXPECT_EQ(s3, "hi Billy");
+    EXPECT_EQ(s3, "hiBilly");
     fails += ::testing::Test::HasFailure();
     cout << "continue test" << endl; // при этом будет выведено на экран данное сообщение
 }
