@@ -1,56 +1,49 @@
 #include <iostream>
-#include <gtest/gtest.h>
+using namespace std;
 #include "string.h"
 
-TEST(StringTest, Constructor)
+/**
+ * Функция main - точка входа в программу.
+ *
+ * @return - возвращает 0, чтобы указать системе, что программа завершилась успешно.
+ */
+int main()
 {
-    String s1(" и я - студент C++.");
-    EXPECT_EQ(s1.length(), 27);
-    EXPECT_STREQ(s1.str, " и я - студент C++.");
-}
+    String s1(" и я - студент C++.");             // Создаем объект s1 и присваиваем ему строку " и я - студент C++."
+    String s2 = "Пожалуйста, введите ваше имя: "; // Создаем объект s2 и присваиваем ему строку "Пожалуйста, введите ваше имя: "
+    String s3;                                    // Создаем пустой объект s3
+    cout << s2;                                   // Выводим содержимое объекта s2 на экран
+    cin >> s3;                                    // Читаем содержимое с клавиатуры и присваиваем его объекту s3
+    s2 = "Мое имя " + s3;                         // Объединяем объекты s2 и s3 и присваиваем их объекту s2
+    cout << s2 << ".\n";                          // Выводим содержимое объекта s2 на экран
+    s2 = s2 + s1;                                 // Объединяем объекты s2 и s1 и присваиваем их объекту s2
+    s2.stringup();                                // Преобразуем все символы объекта s2 в верхний регистр
+    cout << "Строка\n"
+         << s2 << "\nсодержит " << s2.has('A')
+         << " символы 'A' в ней.\n"; // Выводим содержимое объекта s2 на экран
+    s1 = "красный";                  // Изменяем содержимое объекта s1 на "красный"
 
-TEST(StringTest, OperatorPlus)
-{
-    String s1(" снова ");
-    String s2(" студент ");
-    String s3 = s1 + s2;
-    EXPECT_EQ(s3.length(), 35);
-    EXPECT_STREQ(s3.str, " снова студент ");
-}
-
-TEST(StringTest, OperatorAssign)
-{
-    String s1(" снова ");
-    String s2 = s1;
-    EXPECT_EQ(s2.length(), 9);
-    EXPECT_STREQ(s2.str, " снова ");
-}
-
-TEST(StringTest, StringUp)
-{
-    String s1(" снова ");
-    s1.stringup();
-    EXPECT_EQ(s1.length(), 9);
-    EXPECT_STREQ(s1.str, " СНАДУ ");
-}
-
-TEST(StringTest, StringLow)
-{
-    String s1(" СНАДУ ");
-    s1.stringlow();
-    EXPECT_EQ(s1.length(), 9);
-    EXPECT_STREQ(s1.str, " снова ");
-}
-
-TEST(StringTest, Has)
-{
-    String s1(" снова ");
-    EXPECT_EQ(s1.has('а'), true);
-    EXPECT_EQ(s1.has('A'), false);
-}
-
-int main(int argc, char **argv)
-{
-    ::testing::InitGoogleTest(&argc, argv);
-    return RUN_ALL_TESTS();
+    String rgb[3] = {String(s1), String("зеленый"), String("синий")}; // Создаем массив объектов типа String и инициализируем его объектами
+    cout << "Введите имя основного цвета для смешивания света: ";     // Выводим на экран сообщение для ввода
+    String ans;                                                       // Создаем пустой объект ans
+    bool success = false;                                             // Создаем переменную success и присваиваем ей значение false
+    while (cin >> ans)                                                // Читаем содержимое с клавиатуры и присваиваем его объекту ans
+    {
+        ans.stringlow();            // Преобразуем все символы объекта ans в нижний регистр
+        for (int i = 0; i < 3; ++i) // Проходимся по массиву rgb
+        {
+            if (ans == rgb[i]) // Если объект ans равен объекту из массива rgb
+            {
+                cout << "Верно!\n"; // Выводим на экран сообщение о правильном ответе
+                success = true;     // Устанавливаем success в значение true
+                break;              // Прекращаем цикл
+            }
+        }
+        if (success)                     // Если success равен true
+            break;                       // Прекращаем цикл
+        else                             // Если success равен false
+            cout << "Попробуйте еще!\n"; // Выводим на экран сообщение для повторения ввода
+    }
+    cout << "До свидания\n"; // Выводим на экран сообщение о завершении программы
+    return 0;                // Возвращаем значение 0, чтобы указать системе, что программа завершилась успешно
 }
