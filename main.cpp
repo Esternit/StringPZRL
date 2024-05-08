@@ -30,6 +30,22 @@ TEST_F(Fixture, creation)
     cout << "constructor test passed" << endl; // при этом будет выведено на экран данное сообщение
 }
 
+TEST_F(Fixture, assignment)
+{
+    String s2 = "Billy";
+    EXPECT_EQ(s2, "Billy");
+    fails += ::testing::Test::HasFailure();
+    cout << "assignment operator test passed" << endl; // при этом будет выведено на экран данное сообщение
+}
+
+TEST_F(Fixture, cassignment)
+{
+    String s2 = 'B';
+    EXPECT_EQ(s2, "B");
+    fails += ::testing::Test::HasFailure();
+    cout << "const assignment operator test passed" << endl; // при этом будет выведено на экран данное сообщение
+}
+
 TEST_F(Fixture, plus)
 {
     String s1("hi");
