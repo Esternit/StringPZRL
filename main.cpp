@@ -22,7 +22,7 @@ struct Fixture : public ::testing::Test
     unsigned fails;
 };
 
-TEST(Fixture, foo)
+TEST_F(Fixture, foo)
 {
     String s1("hi");
     String s2("Billy");
