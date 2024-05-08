@@ -6,7 +6,10 @@ using namespace std;
 
 TEST(TestGroupName, Subtest_1)
 {
-    EXPECT_EQ(1, 2);                 // логи покажут тут ошибку
+    String s1("hi");
+    String s2("Billy");
+    s3 = s1 + s2;
+    EXPECT_EQ(s3, "hi Billy");       // логи покажут тут ошибку
     cout << "continue test" << endl; // при этом будет выведено на экран данное сообщение
 }
 
