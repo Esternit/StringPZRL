@@ -40,7 +40,7 @@ TEST(Fixture, foo)
  */
 int main(int argc, char **argv)
 {
-    ::testing::InitGoogleTest(&argc, argv);
+    testing::InitGoogleTest(&argc, argv);
 
     return RUN_ALL_TESTS();
     //     String s1(" и я - студент C++.");             // Создаем объект s1 и присваиваем ему строку " и я - студент C++."
