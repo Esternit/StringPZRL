@@ -4,6 +4,24 @@ using namespace std;
 #include <gtest/gtest.h>
 #include "string.h"
 
+struct Fixture : public ::testing::Test
+{
+    virtual void SetUp()
+    {
+        fails = 0;
+    }
+
+    virtual void TearDown()
+    {
+        if (fails > 0)
+        {
+            std::cerr << "Fixture::TearDown sees failures" << std::endl;
+        }
+    }
+
+    unsigned fails;
+};
+
 TEST(TestGroupName, Subtest_1)
 {
     String s1("hi");
@@ -11,10 +29,7 @@ TEST(TestGroupName, Subtest_1)
     String s3;
     s3 = s1 + s2;
     EXPECT_EQ(s3, "hi Billy");
-    if (anyOfExpectsFailed())
-    {
-        cout << "failed test" << endl;
-    } // логи покажут тут ошибку
+    fails += ::testing::Test::HasFailure();
     cout << "continue test" << endl; // при этом будет выведено на экран данное сообщение
 }
 
