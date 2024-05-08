@@ -22,6 +22,14 @@ struct Fixture : public ::testing::Test
     unsigned fails;
 };
 
+TEST_F(Fixture, creation)
+{
+    String s2("Billy");
+    EXPECT_EQ(s2, "Billy");
+    fails += ::testing::Test::HasFailure();
+    cout << "constructor test passed" << endl; // при этом будет выведено на экран данное сообщение
+}
+
 TEST_F(Fixture, plus)
 {
     String s1("hi");
@@ -39,7 +47,7 @@ TEST_F(Fixture, upper)
     s2.stringup();
     EXPECT_EQ(s2, "BILLY");
     fails += ::testing::Test::HasFailure();
-    cout << "operator upper test passed" << endl; // при этом будет выведено на экран данное сообщение
+    cout << "function upper test passed" << endl; // при этом будет выведено на экран данное сообщение
 }
 
 /**
