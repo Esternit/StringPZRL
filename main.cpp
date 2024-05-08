@@ -8,6 +8,7 @@ TEST(TestGroupName, Subtest_1)
 {
     String s1("hi");
     String s2("Billy");
+    String s3;
     s3 = s1 + s2;
     EXPECT_EQ(s3, "hi Billy");       // логи покажут тут ошибку
     cout << "continue test" << endl; // при этом будет выведено на экран данное сообщение
