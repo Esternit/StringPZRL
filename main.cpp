@@ -15,7 +15,7 @@ TEST(TestGroupName, Subtest_1)
  *
  * @return - возвращает 0, чтобы указать системе, что программа завершилась успешно.
  */
-int main()
+int main(int argc, char **argv)
 {
     ::testing::InitGoogleTest(&argc, argv);
 
