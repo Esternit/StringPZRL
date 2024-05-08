@@ -10,7 +10,11 @@ TEST(TestGroupName, Subtest_1)
     String s2("Billy");
     String s3;
     s3 = s1 + s2;
-    EXPECT_EQ(s3, "hi Billy");       // логи покажут тут ошибку
+    EXPECT_EQ(s3, "hi Billy");
+    if (anyOfExpectsFailed())
+    {
+        cout << "failed test" << endl;
+    } // логи покажут тут ошибку
     cout << "continue test" << endl; // при этом будет выведено на экран данное сообщение
 }
 
