@@ -1,5 +1,5 @@
 #include <iostream>
-#include "gtest/gtest.h"
+#include <gtest/gtest.h>
 #include "string.h"
 
 TEST(StringTest, Constructor)
