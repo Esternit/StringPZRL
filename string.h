@@ -1,156 +1,75 @@
 #ifndef STRING1_H_
 #define STRING1_H_
 #include <iostream>
-using std::istream;
+#include <cstddef>
+#include <memory>
+#include <array>
 using std::ostream;
+using std::istream;
 
-/**
- * Класс String представляет собой объект, который хранит строку символов.
- * Он предоставляет множество методов для работы с этой строкой.
- */
 class String
 {
-private:
-    char *str;                    /**< Указатель на массив символов, которые хранят строку */
-    int len;                      /**< Длина строки */
-    static int num_strings;       /**< Количество созданных объектов класса String */
-    static const int CINLIM = 80; /**< Максимальная длина входной строки */
-
-public:
+    private:
     /**
-     * Конструктор на основе C-строки.
-     * @param s Строка, которая будет использована для инициализации объекта
+     * @brief длина строки в байтах
      */
-    String(const char *s);
-
+    size_t maxStringSize;
     /**
-     * Конструктор по умолчанию.
-     * Создает пустой объект String.
+     * @brief максимальная длина строки в байтах
+     *         если длина строки больше чем это значение
+     *         строка хранится в куче
      */
-    String();
-
+    // static const int MAX = 80;
     /**
-     * Конструктор копирования.
-     * Создает копию объекта String, переданного в качестве аргумента
-     * @param st Объект String, который будет скопирован
+     * @brief объединение двух вариантов
+     *         маленькая строка хранится в стеке
+     *         большая строка хранится в куче
      */
-    String(const String &st);
+    union {
+        /**
+         * @brief если строка маленькая, то хранит ее в стеке
+         *         иначе хранит в куче
+         */
+        struct {
+            /**
+             * @brief указатель на строку
+             */
+            char *stringHolder;
+            /**
+             * @brief максимальная вместимость строки в байтах
+             */
+            size_t maxStringCapacity;
+        } lstr;
+        /**
+         * @brief маленькая строка хранится в стеке
+         *         длина строки меньше или равна MAX
+         */
+        char smallString[sizeof(lstr)];
+    };
+    
+    public:
+        
+        bool isStringShort;
 
-    /**
-     * Деструктор.
-     * Освобоняет память, выделенную для строки объекта.
-     */
-    ~String();
+        String(const char * s);
+        String();
+        String(const String &);
+        ~String();
+        size_t length() const { return maxStringSize; }
 
-    /**
-     * Возвращает длину строки объекта.
-     * @return Длина строки объекта
-     */
-    int length() const;
+        String & operator=(const String &);
+        String & operator=(const char *);
+        char & operator[](int i);
+        const char & operator[](int i) const;
+        void stringtolow();
+        void stringtoup();
 
-    /**
-     * Оператор присваивания.
-     * Присваивает значение объекту String, переданному в качестве аргумента.
-     * @param st Объект String, который будет присвоен текущему объекту
-     * @return Ссылку на текущий объект String
-     */
-    String &operator=(const String &st);
+        friend bool operator<(const String &st, const String &st2);
+        friend bool operator>(const String &st1, const String &st2);
+        friend bool operator==(const String &st, const String &st2);
+        friend ostream & operator<<(ostream & os, const String &st2);
+        friend istream & operator>>(istream & is, String & st);
+        friend String operator+(const String& st1, const String& st2);
 
-    /**
-     * Оператор присваивания.
-     * Присваивает значение объекту String, который представляет собой C-строку.
-     * @param s Строка, которая будет использована для инициализации объекта
-     * @return Ссылку на текущий объект String
-     */
-    String &operator=(const char *s);
-
-    /**
-     * Оператор доступа к элементу по индексу.
-     * Возвращает ссылку на символ в строке по заданному индексу.
-     * @param i Индекс символа в строке
-     * @return Ссылку на символ в строке по заданному индексу
-     */
-    char &operator[](int i);
-
-    /**
-     * Оператор доступа к элементу по индексу.
-     * Возвращает ссылку на символ в строке по заданному индексу.
-     * @param i Индекс символа в строке
-     * @return Ссылку на символ в строке по заданному индексу
-     */
-    const char &operator[](int i) const;
-
-    /**
-     * Преобразует все символы в строке в нижний регистр.
-     */
-    void stringlow();
-
-    /**
-     * Преобразует все символы в строке в верхний регистр.
-     */
-    void stringup();
-
-    /**
-     * Подсчитывает количество вхождений символа в строку.
-     * @param ch Символ, который нужно посчитать в строке
-     * @return Количество вхождений символа в строку
-     */
-    int has(char ch) const;
-
-    /**
-     * Возвращает количество созданных объектов класса String.
-     * @return Количество созданных объектов класса String
-     */
-    static int HowMany();
-
-    /**
-     * Оператор сравнения на меньше.
-     * @param st Объект String, который будет сравниваться с текущим объектом
-     * @return True, если строка текущего объекта меньше, чем у переданного объекта
-     */
-    friend bool operator<(const String &st, const String &st2);
-
-    /**
-     * Оператор сравнения на больше.
-     * @param st1 Объект String, который будет сравниваться с текущим объектом
-     * @param st2 Объект String, который будет сравниваться с текущим объектом
-     * @return True, если строка текущего объекта больше, чем у переданных объектов
-     */
-    friend bool operator>(const String &st1, const String &st2);
-
-    /**
-     * Оператор сравнения на равенство.
-     * @param st Объект String, который будет сравниваться с текущим объектом
-     * @param st2 Объект String, который будет сравниваться с текущим объектом
-     * @return True, если строка текущего объекта равна строке переданного объекта
-     */
-    friend bool operator==(const String &st, const String &st2);
-
-    /**
-     * Оператор вставки в поток.
-     * Вставляет строку объекта String в поток.
-     * @param os Поток, в который будет вставлена строка
-     * @param st Объект String, который будет вставлен в поток
-     * @return Поток, в который была вставлена строка
-     */
-    friend ostream &operator<<(ostream &os, const String &st);
-
-    /**
-     * Оператор извлечения из потока.
-     * Читает строку из потока и присваивает ее текущему объекту String.
-     * @param is Поток, из которого будет читаться строка
-     * @param st Объект String, в который будет записана прочитанная строка
-     * @return Поток, из которого была прочитана строка
-     */
-    friend istream &operator>>(istream &is, String &st);
-
-    /**
-     * Оператор конкатенации.
-     * Объединяет две строки объектов String в один объект String.
-     * @param st1 Первая строка, которая будет конкатенирована
-     * @param st2 Вторая строка, которая будет конкатенирована
-     * @return Объединенная строка объектов String
-     */
-    friend String operator+(const String &st1, const String &st2);
 };
 #endif

@@ -1,159 +1,310 @@
-#include <cstring> // Для использования функций std::strlen и std::strcpy.
 #include "string.h"
-#include <cctype> // Для использования функций std::tolower и std::toupper.
+#include <cstring>
+#include <cctype>
+#include <memory>
+#include <cstddef>
 
-using std::cin;
-using std::cout;
 
-// Количество созданных объектов класса String.
-int String::num_strings = 0;
-
-// Возвращает количество созданных объектов класса String.
-int String::HowMany()
-{
-    return num_strings;
+// Конструктор от const char*
+String::String(const char* s) {
+    // Вычисляем длину строки
+    maxStringSize = std::strlen(s);
+    // Если длина строки меньше или равна размеру smallString,
+    // то храним строку в smallString и устанавливаем isStringShort в true
+    if (maxStringSize <= sizeof(smallString) - 1) {
+        isStringShort = true;
+        std::strcpy(smallString, s);
+    } else {
+        // Иначе создаем динамически выделенный массив с достаточным
+        // пространством для строки плюс один для терминатора
+        // и храним строку в этом массиве
+        isStringShort = false;
+        lstr.stringHolder = new char[maxStringSize + 1];
+        std::strcpy(lstr.stringHolder, s);
+        lstr.maxStringCapacity = maxStringSize;
+    }
 }
 
-// Конструктор на основе C-строки.
-String::String(const char *s)
-{
-    len = std::strlen(s);    // Вычисляем длину строки.
-    str = new char[len + 1]; // Выделяем память под новую строку.
-    std::strcpy(str, s);     // Копируем исходную строку в новую.
-    num_strings++;           // Увеличиваем счетчик созданных объектов.
+// Конструктор по умолчанию для пустой строки
+String::String() {
+    // Инициализируем maxStringSize в 0
+    maxStringSize = 0;
+    // Устанавливаем isStringShort в true
+    isStringShort = true;
+    // Устанавливаем первый символ smallString в терминатор
+    smallString[0] = '\0';
+}
+
+// Копирующий конструктор
+String::String(const String& other) {
+    // Копируем максимальную строковую длину
+    maxStringSize = other.maxStringSize;
+    // Если other - короткая строка, копируем строку данных в smallString
+    if (other.isStringShort) {
+        isStringShort = true;
+        std::strcpy(smallString, other.smallString);
+    } else {
+        // Иначе создаем динамически выделенный массив с достаточным
+        // пространством для строки плюс один для терминатора и копируем строку данных в него
+        isStringShort = false;
+        lstr.stringHolder = new char[maxStringSize + 1];
+        std::strcpy(lstr.stringHolder, other.lstr.stringHolder);
+        lstr.maxStringCapacity = other.lstr.maxStringCapacity;
+    }
+}
+
+// Деструктор
+String::~String() {
+    // Если строка не является короткой строкой, удаляем динамически выделенный массив
+    if (!isStringShort) {
+        delete[] lstr.stringHolder;
+    }
+}
+
+// Перегрузка оператора присваивания
+String& String::operator=(const String& other) {
+    // Если текущий объект не равен объекту, к которому совершается присваивание
+    if (this != &other) {
+        // Если текущая строка не является короткой строкой, удаляем динамически выделенный массив
+        if (!isStringShort) {
+            delete[] lstr.stringHolder;
+        }
+        // Копируем максимальную строковую длину
+        maxStringSize = other.maxStringSize;
+        // Если объект, к которому совершается присваивание, является короткой строкой, копируем строку данных в smallString
+        if (other.isStringShort) {
+            isStringShort = true;
+            std::strcpy(smallString, other.smallString);
+        } else {
+            // Иначе создаем динамически выделенный массив с достаточным
+            // пространством для строки плюс один для терминатора и копируем строку данных в него
+            isStringShort = false;
+            lstr.stringHolder = new char[maxStringSize + 1];
+            std::strcpy(lstr.stringHolder, other.lstr.stringHolder);
+            lstr.maxStringCapacity = other.lstr.maxStringCapacity;
+        }
+    }
+    return *this;
+}
+
+// Перегрузка оператора присваивания от const char*
+String& String::operator=(const char* s) {
+    // Если строка не является короткой строкой, удаляем динамически выделенный массив
+    if (!isStringShort) {
+        delete[] lstr.stringHolder;
+    }
+    // Вычисляем длину строки
+    maxStringSize = std::strlen(s);
+    // Если длина строки меньше или равна размеру smallString,
+    // то храним строку в smallString и устанавливаем isStringShort в true
+    if (maxStringSize <= sizeof(smallString) - 1) {
+        isStringShort = true;
+        std::strcpy(smallString, s);
+    } else {
+        // Иначе создаем динамически выделенный массив с достаточным
+        // пространством для строки плюс один для терминатора и храним строку в этом массиве
+        isStringShort = false;
+        lstr.stringHolder = new char[maxStringSize + 1];
+        std::strcpy(lstr.stringHolder, s);
+        lstr.maxStringCapacity = maxStringSize;
+    }
+    return *this;
+}
+
+// Перегрузка оператора [] для получения символа по индексу
+char& String::operator[](int i) {
+    // Если строка является короткой строкой, возвращаем символ на указанном индексе в smallString
+    if (isStringShort) {
+        return smallString[i];
+    } else {
+        // Иначе возвращаем символ на указанном индексе в lstr.stringHolder
+        return lstr.stringHolder[i];
+    }
+}
+
+// Перегрузка оператора [] для получения символа по индексу
+const char& String::operator[](int i) const {
+    // Если строка является короткой строкой, возвращаем символ на указанном индексе в smallString
+    if (isStringShort) {
+        return smallString[i];
+    } else {
+        // Иначе возвращаем символ на указанном индексе в lstr.stringHolder
+        return lstr.stringHolder[i];
+    }
+}
+
+// Перегрузка stringtolower
+void String::stringtolow() {
+    // Если строка является короткой строкой, проходимся по каждому символу в smallString
+    // и кастаем его в нижний регистр с помощью std::tolower
+    if (isStringShort) {
+        for (size_t i = 0; i < maxStringSize; i++) {
+            smallString[i] = std::tolower(smallString[i]);
+        }
+    } else {
+        // Иначе проходимся по каждому символу в lstr.stringHolder
+        // и кастаем его в нижний регистр с помощью std::tolower
+        for (size_t i = 0; i < maxStringSize; i++) {
+            lstr.stringHolder[i] = std::tolower(lstr.stringHolder[i]);
+        }
+    }
+}
+
+// Перегрузка функции stringtoupper
+void String::stringtoup() {
+    // Если строка является короткой строкой, проходимся по каждому символу в smallString
+    // и кастаем его в верхний регистр с помощью std::toupper
+    if (isStringShort) {
+        for (size_t i = 0; i < maxStringSize; i++) {
+            smallString[i] = std::toupper(smallString[i]);
+        }
+    } else {
+        // Иначе проходимся по каждому символу в lstr.stringHolder
+        // и кастаем его в верхний регистр с помощью std::toupper
+        for (size_t i = 0; i < maxStringSize; i++) {
+            lstr.stringHolder[i] = std::toupper(lstr.stringHolder[i]);
+        }
+    }
+}
+
+// Перегрузка оператора <
+bool operator<(const String& st, const String& st2) {
+    // Если обе строки являются короткими строками, сравниваем данные в smallString
+    if (st.isStringShort && st2.isStringShort) {
+        return std::strcmp(st.smallString, st2.smallString) < 0;
+    } else if (!st.isStringShort && !st2.isStringShort) {
+        // Если обе строки не являются короткими строками, сравниваем данные в lstr.stringHolder
+        return std::strcmp(st.lstr.stringHolder, st2.lstr.stringHolder) < 0;
+    } else if (st.isStringShort && !st2.isStringShort) {
+        // Если st является короткой строкой и st2 не является, сравниваем данные в smallString
+        // с данными в lstr.stringHolder st2
+        return std::strcmp(st.smallString, st2.lstr.stringHolder) < 0;
+    } else {
+        // Если st не является короткой строкой и st2 является, сравниваем данные в lstr.stringHolder st
+        // с данными в smallString st2
+        return std::strcmp(st.lstr.stringHolder, st2.smallString) < 0;
+    }
+}
+
+// Перегрузка оператора >
+bool operator>(const String& st1, const String& st2) {
+    // Если обе строки являются короткими строками, сравниваем данные в smallString
+    if (st1.isStringShort && st2.isStringShort) {
+        return std::strcmp(st1.smallString, st2.smallString) > 0;
+    } else if (!st1.isStringShort && !st2.isStringShort) {
+        // Если обе строки не являются короткими строками, сравниваем данные в lstr.stringHolder
+        return std::strcmp(st1.lstr.stringHolder, st2.lstr.stringHolder) > 0;
+    } else if (st1.isStringShort && !st2.isStringShort) {
+        // Если st1 является короткой строкой и st2 не является, сравниваем данные в smallString
+        // с данными в lstr.stringHolder st2
+        return std::strcmp(st1.smallString, st2.lstr.stringHolder) > 0;
+    } else {
+        // Если st1 не является короткой строкой и st2 является, сравниваем данные в lstr.stringHolder st1
+        // с данными в smallString st2
+        return std::strcmp(st1.lstr.stringHolder, st2.smallString) > 0;
+    }
 }
 
 /**
- * Конструктор по умолчанию.
- *
- * Создает новый объект класса String с пустой C-строкой.
+ * @brief Перегрузка оператора ==
+ * @param st первый string
+ * @param st2 второй string
+ * @return true если строки равны, false иначе
  */
-String::String() : String("")
-{
+bool operator==(const String& st, const String& st2) {
+    /**
+     * @brief Сравнивает два string, чтобы проверить равны ли они
+     * @param st первый string
+     * @param st2 второй string
+     * @return true если строки равны, false иначе
+     */
+    bool st1IsShort = st.isStringShort;
+    bool st2IsShort = st2.isStringShort;
+    if (st1IsShort && st2IsShort) {
+        // Если обе строки являются короткими строками, сравниваем данные в smallString
+        return std::strcmp(st.smallString, st2.smallString) == 0;
+    } else if (!st1IsShort && !st2IsShort) {
+        // Если обе строки не являются короткими строками, сравниваем данные в lstr.stringHolder
+        return std::strcmp(st.lstr.stringHolder, st2.lstr.stringHolder) == 0;
+    } else if (st1IsShort) {
+        // Если st является короткой строкой и st2 не является, сравниваем данные в smallString
+        // с данными в lstr.stringHolder st2
+        return std::strcmp(st.smallString, st2.lstr.stringHolder) == 0;
+    } else {
+        // Если st не является короткой строкой и st2 является, сравниваем данные в lstr.stringHolder
+        // st с данными в smallString st2
+        return std::strcmp(st.lstr.stringHolder, st2.smallString) == 0;
+    }
+
 }
 
-// Конструктор копирования.
-String::String(const String &st)
-{
-    num_strings++;            // Увеличиваем счетчик созданных объектов.
-    len = st.len;             // Устанавливаем длину нового объекта равной длине исходного.
-    str = new char[len + 1];  // Выделяем память под новую строку.
-    std::strcpy(str, st.str); // Копируем исходную строку в новую.
+/**
+ * @brief Перегрузка оператора <<
+ * @param os выводящий поток
+ * @param st строка, которую нужно вывести
+ * @return выводящий поток
+ */
+ostream& operator<<(ostream& os, const String& st) {
+    /**
+     * Выводит строку. Если строка короткая, выводит ее smallString, иначе выводит lstr.stringHolder
+     */
+    if (st.isStringShort) {
+        os << st.smallString;
+    } else {
+        os << st.lstr.stringHolder;
+    }
+    return os;
 }
 
-// Деструктор.
-String::~String()
-{
-    --num_strings; // Уменьшаем счетчик созданных объектов.
-    delete[] str;  // Освобоняем память, выделенную для строки.
+/**
+ * @brief Перегрузка оператора >
+ * @param is вводящий поток
+ * @param st строка, которую нужно прочитать
+ * @return вводящий поток
+ */
+istream& operator>>(istream& is, String& st) {
+    /**
+     * Читает строку. Читает максимум String::MAX символов из вводящего потока.
+     * Если вводящий поток валиден, копирует прочитанные символы в строку
+     * После ввода skip'ит остаток строки
+     */
+    char temp[sizeof(String::lstr)];
+    is.get(temp, sizeof(String::lstr));
+    if (is) {
+        st = temp;
+    }
+    while (is && is.get() != '\n') {
+        continue;
+    }
+    return is;
 }
 
-// Оператор присваивания.
-String &String::operator=(const String &st)
-{
-    if (this == &st)
-        return *this;         // Если присваиваем самому себе, возвращаем себя.
-    delete[] str;             // Освобоняем память, выделенную для текущей строки.
-    len = st.len;             // Устанавливаем длину нового объекта равной длине исходного.
-    str = new char[len + 1];  // Выделяем память под новую строку.
-    std::strcpy(str, st.str); // Копируем исходную строку в новую.
-    return *this;             // Возвращаем себя.
+/**
+ * @brief Перегрузка оператора +
+ * @param st1 первая строка
+ * @param st2 вторая строка
+ * @return новая строка, которая является конкатенацией st1 и st2
+ */
+String operator+(const String& st1, const String& st2) {
+    /**
+     * Конкатенирует две строки. Если сумма размеров строк меньше или равна String::MAX,
+     * хранит результат в smallString. иначе выделяет память для результата и хранит в lstr.stringHolder
+     */
+    String temp;
+    temp.maxStringSize = st1.maxStringSize + st2.maxStringSize;
+    if (temp.maxStringSize <= sizeof(temp.smallString) - 1) {
+        temp.isStringShort = true;
+        std::strcpy(temp.smallString, st1.isStringShort ? st1.smallString : st1.lstr.stringHolder);
+        std::strcat(temp.smallString, st2.isStringShort ? st2.smallString : st2.lstr.stringHolder);
+    } else {
+        temp.isStringShort = false;
+        std::cout << "String holder changed" << std::endl;
+        temp.lstr.stringHolder = new char[temp.maxStringSize + 1];
+        std::strcpy(temp.lstr.stringHolder, st1.isStringShort ? st1.smallString : st1.lstr.stringHolder);
+        std::strcat(temp.lstr.stringHolder, st2.isStringShort ? st2.smallString : st2.lstr.stringHolder);
+        temp.lstr.maxStringCapacity = temp.maxStringSize;
+    }
+    return temp;
 }
 
-// Оператор присваивания на основе C-строки.
-String &String::operator=(const char *s)
-{
-    delete[] str;            // Освобоняем память, выделенную для текущей строки.
-    len = std::strlen(s);    // Вычисляем длину новой строки.
-    str = new char[len + 1]; // Выделяем память под новую строку.
-    std::strcpy(str, s);     // Копируем новую строку в память, выделенную для нее.
-    return *this;            // Возвращаем себя.
-}
 
-// Преобразует все символы в нижний регистр.
-void String::stringlow()
-{
-    for (int j = 0; j < len; ++j)            // Проходимся по строке символ за символом.
-        str[j] = (char)std::tolower(str[j]); // Преобразуем каждый символ в нижний регистр.
-}
-
-// Преобразует все символы в верхний регистр.
-void String::stringup()
-{
-    for (int j = 0; j < len; ++j)
-        str[j] = (char)std::toupper(str[j]);
-}
-
-// Подсчитывает количество вхождений символа в строку.
-int String::has(char ch) const
-{
-    int counter = 0;              // Счетчик вхождений символа.
-    for (int j = 0; j < len; ++j) // Проходимся по строке символ за символом.
-        if (str[j] == ch)         // Если символ равен заданному, увеличиваем счетчик.
-            ++counter;
-
-    return counter; // Возвращаем счетчик вхождений.
-}
-
-// Оператор доступа по индексу для изменения.
-char &String::operator[](int i)
-{
-    return str[i];
-}
-
-// Оператор доступа по индексу для константности.
-const char &String::operator[](int i) const
-{
-    return str[i];
-}
-
-// Оператор сравнения на меньше.
-bool operator<(const String &st1, const String &st2)
-{
-    return (std::strcmp(st1.str, st2.str) < 0);
-}
-
-// Оператор сравнения на больше.
-bool operator>(const String &st1, const String &st2)
-{
-    return st2 < st1;
-}
-
-// Оператор сравнения на равенство.
-bool operator==(const String &st1, const String &st2)
-{
-    return (std::strcmp(st1.str, st2.str) == 0);
-}
-
-// Оператор вставки в поток.
-ostream &operator<<(ostream &os, const String &st)
-{
-    os << st.str; // Вставляем строку в поток.
-    return os;    // Возвращаем поток.
-}
-
-// Оператор конкатенации.
-String operator+(const String &st1, const String &st2)
-{
-    String _temp;                        // Временный объект.
-    delete[] _temp.str;                  // Освобоняем память, выделенную по умолчанию.
-    _temp.len = st1.len + st2.len;       // Вычисляем длину будущей строки.
-    _temp.str = new char[_temp.len + 1]; // Выделяем память под новую строку.
-
-    std::strcpy(_temp.str, st1.str);
-    std::strcpy(_temp.str + st1.len, st2.str); // Сцепляем строки и сохраняем в временный объект.
-
-    return _temp; // Возвращаем временный объект.
-}
-
-// Оператор ввода из потока.
-istream &operator>>(istream &is, String &st)
-{
-    char temp[String::CINLIM];    // Буфер для ввода.
-    is.get(temp, String::CINLIM); // Считываем строку.
-    if (is)
-        st = temp; // Присваиваем буффер объекту.
-    while (is && is.get() != '\n')
-        continue; // Считываем остаток строки.
-    return is;    // Возвращаем поток.
-}
