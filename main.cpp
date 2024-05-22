@@ -5,10 +5,9 @@ using namespace std;
 int main(int argc, char **argv)
 {
     String s1("Hello, World!"); 
-    String s2 = "Hello, World!"; 
-    String s3;
-    cout << s2 << endl; 
-    cin >> s3;
+    String s2 = "Well hi then"; 
+    String s3 = "Well hi then";
+    cout << s3 << endl; 
     cout << s3.length() << endl;
     s3.stringtoup();
     cout << s3 << endl;
